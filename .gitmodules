@@ -1,0 +1,12 @@
+[submodule "lib/gcdyn.jl"]
+	path = lib/gcdyn.jl
+	url = git@github.com:thanasibakis/gcdyn.jl.git
+[submodule "lib/Ab-CGGnaive_DMS"]
+	path = lib/Ab-CGGnaive_DMS
+	url = git@github.com:jbloomlab/Ab-CGGnaive_DMS.git
+[submodule "lib/gcdyn"]
+	path = lib/gcdyn
+	url = git@github.com:matsengrp/gcdyn.git
+[submodule "lib/gcreplay"]
+	path = lib/gcreplay
+	url = git@github.com:matsengrp/gcreplay.git
