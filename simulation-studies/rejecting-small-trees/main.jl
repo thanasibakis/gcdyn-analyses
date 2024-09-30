@@ -1,5 +1,5 @@
 println("Loading packages...")
-using CSV, DataFrames, gcdyn, JLD2, LinearAlgebra, Optim, Random, Turing
+using CSV, DataFrames, Dates, gcdyn, JLD2, LinearAlgebra, Optim, Random, Turing
 
 @model function Model(trees, Γ, type_space, ρ, σ, present_time)
     # Keep priors on the same scale for NUTS
@@ -34,7 +34,7 @@ function main()
     φ = [1.3, 1, -1.1, 0.5]
     μ = 0.5
     δ = 20
-    ρ = 1 #0.1
+    ρ = 0.1
     σ = 0
     present_time = 15
 
@@ -51,6 +51,8 @@ function main()
     dfs = Vector{DataFrame}(undef, num_treesets)
 
     Threads.@threads for i in 1:num_treesets
+        @info "[$(Dates.format(now(), "mm/dd HH:MM"))] Sampling from posterior $i..."
+
         treeset = trees[(i - 1) * num_trees_per_set + 1:i * num_trees_per_set]
         model = Model(treeset, Γ, type_space, ρ, σ, present_time)
 
@@ -59,16 +61,19 @@ function main()
         dfs[i] = sample(
             model,
             NUTS(adtype=AutoForwardDiff(chunksize=6)),
-            1000,
-            init_params=max_a_posteriori
+            1000;
+            init_params=max_a_posteriori,
+            progress=false
         ) |> DataFrame
 
-        dfs[i].run .= i
+        dfs[i].treeset .= i
+
+        @info "Finished sampling from posterior $i"
     end
 
     println("Exporting samples...")
     posterior_samples = vcat(dfs...)
-    CSV.write("posterior-samples.csv", posterior_samples)
+    CSV.write("out/posterior-samples.csv", posterior_samples)
 
 	println("Done!")
 end
