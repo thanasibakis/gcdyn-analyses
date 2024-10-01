@@ -42,7 +42,7 @@ function main()
 
     num_treesets = 5
 	num_trees_per_set = 52
-    trees = rand_tree(truth, present_time, truth.type_space[5], num_treesets * num_trees_per_set; min_leaves=40)
+    trees = rand_tree(truth, present_time, truth.type_space[5], num_treesets * num_trees_per_set)
 
     mkpath("out/")
     save_object("out/trees.jld2", trees)
@@ -51,7 +51,7 @@ function main()
     dfs = Vector{DataFrame}(undef, num_treesets)
 
     Threads.@threads for i in 1:num_treesets
-        @info "[$(Dates.format(now(), "mm/dd HH:MM"))] Sampling from posterior $i..."
+        println("[$(Dates.format(now(), "mm/dd HH:MM"))] Sampling from posterior $i...")
 
         treeset = trees[(i - 1) * num_trees_per_set + 1:i * num_trees_per_set]
         model = Model(treeset, Γ, type_space, ρ, σ, present_time)
@@ -62,13 +62,12 @@ function main()
             model,
             NUTS(adtype=AutoForwardDiff(chunksize=6)),
             1000;
-            init_params=max_a_posteriori,
-            progress=false
+            init_params=max_a_posteriori
         ) |> DataFrame
 
         dfs[i].treeset .= i
 
-        @info "Finished sampling from posterior $i"
+        println("Finished sampling from posterior $i")
     end
 
     println("Exporting samples...")
