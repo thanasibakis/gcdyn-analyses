@@ -32,32 +32,25 @@ function main()
     
     println("Reading trees...")
 
-	trees = map(keys(TYPE_SPACES) |> collect) do name
-		treeset::Vector{TreeNode{Float64}} = load_object("trees.jld2")
-		discretization_table = TYPE_SPACES[name][:discretization_table]
-
-		map(treeset) do tree
-			map_types!(tree) do affinity
-				for (bin, value) in discretization_table
-					if bin[1] <= affinity < bin[2]
-						return value
-					end
-				end
-			
-				if all(bin[2] <= affinity for bin in keys(discretization_table))
-					return maximum(values(discretization_table))
-				elseif all(affinity < bin[1] for bin in keys(discretization_table))
-					return minimum(values(discretization_table))
-				else
-					error("Affinity $affinity not in any bin!")
-				end
-			end
-
-			tree
-		end
-
-		name => treeset
-	end |> Dict
+	trees::Vector{TreeNode{Float64}} = load_object("../trees.jld2")
+    
+	for tree in trees
+        map_types!(tree) do affinity
+            for (bin, value) in discretization_table
+                if bin[1] <= affinity < bin[2]
+                    return value
+                end
+            end
+        
+            if all(bin[2] <= affinity for bin in keys(discretization_table))
+                return maximum(values(discretization_table))
+            elseif all(affinity < bin[1] for bin in keys(discretization_table))
+                return minimum(values(discretization_table))
+            else
+                error("Affinity $affinity not in any bin!")
+            end
+        end
+    end
 
     num_treesets = 5
 	num_trees_per_set = 52

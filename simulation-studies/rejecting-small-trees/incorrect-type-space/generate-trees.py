@@ -7,9 +7,10 @@ from gcdyn.bdms import TreeError, TreeNode
 from gcdyn.gpmap import AdditiveGPMap
 from gcdyn.mutators import ContextMutator, SequencePhenotypeMutator
 from gcdyn.poisson import ConstantResponse, SigmoidResponse
+from numpy.random import default_rng
 
 naive_sequence = "GAGGTGCAGCTTCAGGAGTCAGGACCTAGCCTCGTGAAACCTTCTCAGACTCTGTCCCTCACCTGTTCTGTCACTGGCGACTCCATCACCAGTGGTTACTGGAACTGGATCCGGAAATTCCCAGGGAATAAACTTGAGTACATGGGGTACATAAGCTACAGTGGTAGCACTTACTACAATCCATCTCTCAAAAGTCGAATCTCCATCACTCGAGACACATCCAAGAACCAGTACTACCTGCAGTTGAATTCTGTGACTACTGAGGACACAGCCACATATTACTGTGCAAGGGACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAGACATTGTGATGACTCAGTCTCAAAAATTCATGTCCACATCAGTAGGAGACAGGGTCAGCGTCACCTGCAAGGCCAGTCAGAATGTGGGTACTAATGTAGCCTGGTATCAACAGAAACCAGGGCAATCTCCTAAAGCACTGATTTACTCGGCATCCTACAGGTACAGTGGAGTCCCTGATCGCTTCACAGGCAGTGGATCTGGGACAGATTTCACTCTCACCATCAGCAATGTGCAGTCTGAAGACTTGGCAGAGTATTTCTGTCAGCAATATAACAGCTATCCTCTCACGTTCGGCTCGGGGACTAAGCTAGAAATAAAA"
-birth_response = SigmoidResponse(1.3, 1, -1.1, 0.5)
+birth_response = SigmoidResponse(1.3, 1.0, -1.1, 0.5)
 death_response = ConstantResponse(0.5)
 mutation_response = ConstantResponse(5.5)
 present_time = 15
@@ -26,6 +27,7 @@ mutator = SequencePhenotypeMutator(
 )
 
 num_trees = 5 * 52
+rng = default_rng(1)
 
 
 def generate_tree():
@@ -43,6 +45,7 @@ def generate_tree():
             mutator=mutator,
             verbose=False,
             min_survivors=0,
+            seed=rng,
         )
 
         root.sample_survivors(p=survivor_sampling_prob)
