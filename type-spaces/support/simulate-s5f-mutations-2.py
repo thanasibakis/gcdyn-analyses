@@ -23,6 +23,9 @@ gp_map = gpmap.AdditiveGPMap(
     dms["affinity"], nonsense_phenotype=dms["affinity"].min().min()
 )
 
+mutation_response = poisson.SequenceContextMutationResponse(
+    replay.mutability(), mutation_intensity=1.75
+)
 mutator = mutators.SequencePhenotypeMutator(
     mutators.ContextMutator(
         mutability=replay.mutability(), substitution=replay.substitution()
@@ -46,7 +49,7 @@ with warnings.catch_warnings():
             t=200,
             birth_response=poisson.ConstantResponse(0),
             death_response=poisson.ConstantResponse(0),
-            mutation_response=poisson.ConstantResponse(1),
+            mutation_response=mutation_response,
             mutator=mutator,
             verbose=False,
         )
