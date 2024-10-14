@@ -2,12 +2,13 @@
 
 library(tidyverse)
 
-posterior_samples <- read_csv("posterior-samples.csv")
+out_path <- commandArgs(trailingOnly = TRUE)[1]
+posterior_samples <- read_csv(file.path(out_path, "posterior-samples.csv"))
 
 prior_densities <- list(
     `φ[1]` = \(x) dlnorm(x, 0.5, 0.75),
     `φ[2]` = \(x) dlnorm(x, 0.5, 0.75),
-    `φ[3]` = \(x) dnorm(x, 5, 1),
+    `φ[3]` = \(x) dnorm(x, 0, sqrt(2)),
     `φ[4]` = \(x) dlnorm(x, -0.5, 1.2),
     μ      = \(x) dlnorm(x, 0, 0.5),
     δ      = \(x) dlnorm(x, 0, 0.5)
@@ -16,7 +17,7 @@ prior_densities <- list(
 prior_quantiles <- list(
     `φ[1]` = \(x) qlnorm(x, 0.5, 0.75),
     `φ[2]` = \(x) qlnorm(x, 0.5, 0.75),
-    `φ[3]` = \(x) qnorm(x, 5, 1),
+    `φ[3]` = \(x) qnorm(x, 0, sqrt(2)),
     `φ[4]` = \(x) qlnorm(x, -0.5, 1.2),
     μ      = \(x) qlnorm(x, 0, 0.5),
     δ      = \(x) qlnorm(x, 0, 0.5)
@@ -24,12 +25,12 @@ prior_quantiles <- list(
 
 truth <- tribble(
     ~Parameter, ~Truth,
-    "φ[1]", 1.5,
+    "φ[1]", 1.3,
     "φ[2]", 1,
-    "φ[3]", 5,
-    "φ[4]", 1,
-    "μ", 1.3,
-    "δ", 1
+    "φ[3]", -1.1,
+    "φ[4]", 0.5,
+    "μ", 0.5,
+    "δ", 20
 )
 
 # Plot posterior median sigmoid sampling distribution
@@ -43,7 +44,7 @@ posterior_median_λ_quantiles <-
     posterior_samples |>
     summarize(
         across(starts_with("φ"), median),
-        .by = run
+        .by = treeset
     ) |>
     expand_grid(x = X) |>
     mutate(λ = sigmoid(x, `φ[1]`, `φ[2]`, `φ[3]`, `φ[4]`)) |>
@@ -146,7 +147,7 @@ plot_sigmoid <- function(quantiles) {
 }
 
 ggsave(
-    paste0("out/posterior-median-sigmoids.png"),
+    file.path(out_path, "posterior-median-sigmoids.png"),
     bind_rows(prior_λ_quantiles, posterior_median_λ_quantiles) |> plot_sigmoid(),
     width = 15,
     height = 12,
@@ -154,7 +155,7 @@ ggsave(
 )
 
 ggsave(
-    paste0("out/posterior-median-sigmoids-no-prior.png"),
+    file.path(out_path, "posterior-median-sigmoids-no-prior.png"),
     posterior_median_λ_quantiles |> plot_sigmoid(),
     width = 15,
     height = 12,
@@ -174,7 +175,7 @@ posterior_summaries <- posterior_samples |>
         Q_025 = quantile(Sample, 0.025),
         Q_975 = quantile(Sample, 0.975),
         CI_Length = Q_975 - Q_025,
-        .by = c(run, Parameter)
+        .by = c(treeset, Parameter)
     )
 
 for (parameter in truth$Parameter) {
@@ -203,7 +204,7 @@ for (parameter in truth$Parameter) {
         labs(title = "Posterior median sampling distribution", x = "Parameter")
 
     ggsave(
-        paste0("out/posterior-medians-", parameter, ".png"),
+        file.path(out_path, paste0("posterior-medians-", parameter, ".png")),
         p,
         width = 15,
         height = 8,
@@ -217,4 +218,4 @@ posterior_summaries |>
     full_join(truth, by = "Parameter") |>
     group_by(Parameter) |>
     summarise(Coverage = mean((Truth >= Q_025) & (Truth <= Q_975))) |>
-    write_tsv("out/ci95-coverage-proportions.tsv")
+    write_tsv(file.path(out_path, "ci95-coverage-proportions.tsv"))
