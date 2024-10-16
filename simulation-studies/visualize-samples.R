@@ -5,7 +5,7 @@ library(glue)
 
 out_path <- commandArgs(trailingOnly = TRUE)[1]
 posterior_samples <- read_csv(file.path(out_path, "posterior-samples.csv")) |>
-    mutate(treeset = glue("Posterior (treeset {treeset})"))
+    mutate(treeset = glue("Treeset {treeset}"))
 
 prior_densities <- list(
     `φ[1]` = \(x) dlnorm(x, 0.5, 0.75),
@@ -81,12 +81,8 @@ plot_sigmoid <- function(quantiles, truth) {
             )),
             linewidth = 1.5
         ) +
-        geom_vline(xintercept = TYPE_SPACE, linewidth = 1.5, linetype = "dashed") +
+        geom_vline(xintercept = TYPE_SPACE, linewidth = 1, linetype = "dashed") +
         scale_color_manual(values = "black") +
-        labs(
-            title = "Posterior sigmoid distribution",
-            y = expression(lambda(x))
-        ) +
         expand_limits(y = c(0, 2)) +
         theme_bw(base_size = 16) +
         theme(legend.position = "bottom", legend.title = element_blank())
@@ -151,17 +147,23 @@ ggsave(
     plot_sigmoid(
         bind_rows(prior_λ_quantiles, posterior_λ_quantiles),
         truth
+    ) + labs(
+        title = "Birth rate posteriors",
+        y = expression(lambda(x))
     ),
     width = 15,
-    height = 12,
+    height = 10,
     dpi = 300
 )
 
 ggsave(
     file.path(out_path, "posterior-sigmoids-no-prior.png"),
-    plot_sigmoid(posterior_λ_quantiles, truth),
+    plot_sigmoid(posterior_λ_quantiles, truth) + labs(
+        title = "Birth rate posteriors",
+        y = expression(lambda(x))
+    ),
     width = 15,
-    height = 12,
+    height = 10,
     dpi = 300
 )
 
@@ -221,9 +223,12 @@ ggsave(
                 TRUE ~ Truth
             )
         )
+    ) + labs(
+        title = "Net rate posteriors",
+        y = expression(lambda(x) - mu)
     ),
     width = 15,
-    height = 12,
+    height = 10,
     dpi = 300
 )
 
@@ -239,58 +244,47 @@ ggsave(
                 TRUE ~ Truth
             )
         )
+    ) + labs(
+        title = "Rate ratio posteriors",
+        y = expression(lambda(x) / mu)
     ),
     width = 15,
-    height = 12,
+    height = 10,
     dpi = 300
 )
 
 # Plot histograms
 
-# posterior_summaries <- posterior_samples |>
-#     pivot_longer(
-#         c(starts_with("φ"), μ),
-#         names_to = "Parameter",
-#         values_to = "Sample"
-#     ) |>
-#     summarise(
-#         Median = median(Sample),
-#         Q_025 = quantile(Sample, 0.025),
-#         Q_975 = quantile(Sample, 0.975),
-#         CI_Length = Q_975 - Q_025,
-#         .by = c(treeset, Parameter)
-#     )
+for (parameter in truth$Parameter) {
+    p <- ggplot() +
+        facet_grid(rows = vars(treeset)) +
+        stat_function(
+            aes(fill = "Prior"),
+            fun = prior_densities[[parameter]],
+            geom = "area",
+        ) +
+        geom_histogram(
+            aes(Sample, after_stat(density), fill = "Posterior"),
+            data = posterior_samples |> rename(Sample = parameter) |> mutate(Parameter = parameter),
+            alpha = 0.5
+        ) +
+        scale_fill_manual(
+            values = c("Prior" = "grey", "Posterior" = "dodgerblue4")
+        ) +
+        geom_vline(
+            xintercept = with(truth, Truth[Parameter == parameter]),
+            color = "black",
+            linewidth = 1.5
+        ) +
+        theme_bw(base_size = 16) +
+        theme(legend.position = "bottom", legend.title = element_blank()) +
+        labs(title = "Posterior histogram", x = parameter)
 
-# for (parameter in truth$Parameter) {
-#     p <- ggplot() +
-#         stat_function(
-#             aes(fill = "Prior"),
-#             fun = prior_densities[[parameter]],
-#             geom = "area",
-#         ) +
-#         geom_histogram(
-#             aes(Median, after_stat(density), fill = "Posterior medians"),
-#             data = filter(posterior_summaries, Parameter == parameter),
-#             alpha = 0.5
-#         ) +
-#         geom_vline(
-#             xintercept = with(truth, Truth[Parameter == parameter]),
-#             color = "black",
-#             linewidth = 1.5
-#         ) +
-#         scale_fill_manual(
-#             values = c("Prior" = "grey", "Posterior medians" = "dodgerblue4")
-#         ) +
-#         expand_limits(x = c(0, 3)) +
-#         theme_bw(base_size = 16) +
-#         theme(legend.position = "bottom", legend.title = element_blank()) +
-#         labs(title = "Posterior median sampling distribution", x = "Parameter")
-
-#     ggsave(
-#         file.path(out_path, paste0("posterior-medians-", parameter, ".png")),
-#         p,
-#         width = 15,
-#         height = 8,
-#         dpi = 300
-#     )
-# }
+    ggsave(
+        file.path(out_path, glue("posterior-{parameter}.png")),
+        p,
+        width = 4,
+        height = 8,
+        dpi = 300
+    )
+}
