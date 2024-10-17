@@ -56,6 +56,9 @@ function main()
 	num_trees_per_set = 52
     present_time = 15
 
+    ρ = 0.1
+    σ = 0
+
     mkpath("out/")
     save_object("out/trees.jld2", trees)
 
