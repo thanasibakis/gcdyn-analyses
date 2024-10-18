@@ -1,5 +1,5 @@
 println("Loading packages...")
-using CSV, gcdyn, DataFrames, Distributions, JLD2, LinearAlgebra, Optim, StatsBase, Turing
+using CSV, gcdyn, DataFrames, Distributions, JLD2, LinearAlgebra, Optim, Random, StatsBase, Turing
 
 @model function SigmoidalModel(trees, Γ, type_space)
 	# Keep priors on the same scale for NUTS
@@ -116,7 +116,7 @@ function main()
 	# Main SIR loop
 	num_mcmc_iterations = 2 #1000
 	chain = Matrix{Float64}(undef, num_mcmc_iterations+1, 6)
-	chain[1, :] = max_a_posteriori.values[8:13]
+	chain[1, :] = max_a_posteriori.values[7:12]
 
 	selected_trees = Dict{String, Int64}()
 
@@ -144,10 +144,10 @@ function main()
 			init_params=chain[mcmc_iteration, :]
 		)
 
-		chain[mcmc_iteration+1, :] = parameter_samples.value[end, 8:14, 1]
+		chain[mcmc_iteration+1, :] = parameter_samples.value[end, 7:12, 1]
 	end
 
-	posterior_samples = DataFrame(chain, names(max_a_posteriori.values[8:13])[1])
+	posterior_samples = DataFrame(chain, names(max_a_posteriori.values[7:12])[1])
 	posterior_samples.iteration = 0:num_mcmc_iterations
 	CSV.write(joinpath(out_path, "samples-posterior.csv"), posterior_samples)
 
