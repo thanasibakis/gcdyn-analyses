@@ -151,9 +151,16 @@ function main()
 	posterior_samples.iteration = 0:num_mcmc_iterations
 	CSV.write(joinpath(out_path, "samples-posterior.csv"), posterior_samples)
 
-	open(joinpath(out_path, "selected-trees.txt"), "w") do f
-		println(f, sort(selected_trees, by=x->x[2], rev=true))
+	selected_trees_df = DataFrame(path=keys(selected_trees) |> collect, count=values(selected_trees) |> collect)
+	selected_trees_df.germinal_center = map(selected_trees_df.path) do path
+		basename(dirname(path))
 	end
+	selected_trees_df.tree = map(selected_trees_df.path) do path
+		parse(Int, basename(path)[12:end-5])
+	end
+	select!(selected_trees_df, :germinal_center, :tree, :count)
+	sort!(selected_trees_df, [:germinal_center, :count], rev=[false, true])
+	CSV.write(joinpath(out_path, "selected-trees.csv"), selected_trees_df)
 
 	println("Done!")
 end
