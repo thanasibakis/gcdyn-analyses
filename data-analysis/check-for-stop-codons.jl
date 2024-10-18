@@ -5,6 +5,8 @@ function main()
 	invalid_trees = Vector{String}()
 
 	for germinal_center_dir in readdir("data/jld2-with-sequences/"; join=true)
+		println("Checking $germinal_center_dir")
+		
 		for treefile in readdir(germinal_center_dir; join=true)
 			tree::TreeNode{String} = load_object(treefile)
 
