@@ -76,7 +76,7 @@ end
 function main()
 	Random.seed!(1)
 
-	out_path = "out/inference/"
+	out_path = "out/inference/sir/"
 	mkpath(out_path)
 
 	# Generated in the `type-spaces` directory at the repository root
@@ -114,7 +114,7 @@ function main()
 	end |> Dict
 
 	# Main SIR loop
-	num_mcmc_iterations = 2 #1000
+	num_mcmc_iterations = 1000
 	chain = Matrix{Float64}(undef, num_mcmc_iterations+1, 6)
 	chain[1, :] = max_a_posteriori.values[7:12]
 
