@@ -52,7 +52,7 @@ end
 function main()
 	Random.seed!(1)
 
-	out_path = "out/inference/one-sample/"
+	out_path = "out/inference/one-sample-no-stop-codons/"
 	mkpath(out_path)
 
 	# Generated in the `type-spaces` directory at the repository root
@@ -74,7 +74,7 @@ function main()
 	end
 
 	println("Computing initial MCMC state...")
-	max_a_posteriori = optimize(SigmoidalModel(starter_treeset, Γ, type_space), MAP(), NelderMead())
+	max_a_posteriori = optimize(SigmoidalModel(treeset, Γ, type_space), MAP(), NelderMead())
 
 	open(joinpath(out_path, "map.txt"), "w") do f
 		println(f, max_a_posteriori)

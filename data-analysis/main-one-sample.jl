@@ -69,7 +69,7 @@ function main()
 	end
 
 	println("Computing initial MCMC state...")
-	max_a_posteriori = optimize(SigmoidalModel(starter_treeset, Γ, type_space), MAP(), NelderMead())
+	max_a_posteriori = optimize(SigmoidalModel(treeset, Γ, type_space), MAP(), NelderMead())
 
 	open(joinpath(out_path, "map.txt"), "w") do f
 		println(f, max_a_posteriori)

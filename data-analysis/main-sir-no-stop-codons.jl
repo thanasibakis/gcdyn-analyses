@@ -76,7 +76,7 @@ end
 function main()
 	Random.seed!(1)
 
-	out_path = "out/inference/sir/"
+	out_path = "out/inference/sir-no-stop-codons/"
 	mkpath(out_path)
 
 	# Generated in the `type-spaces` directory at the repository root
