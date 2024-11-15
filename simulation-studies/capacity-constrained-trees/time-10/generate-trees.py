@@ -14,7 +14,7 @@ from gcdyn.poisson import (
 from numpy.random import default_rng
 
 naive_sequence = "GAGGTGCAGCTTCAGGAGTCAGGACCTAGCCTCGTGAAACCTTCTCAGACTCTGTCCCTCACCTGTTCTGTCACTGGCGACTCCATCACCAGTGGTTACTGGAACTGGATCCGGAAATTCCCAGGGAATAAACTTGAGTACATGGGGTACATAAGCTACAGTGGTAGCACTTACTACAATCCATCTCTCAAAAGTCGAATCTCCATCACTCGAGACACATCCAAGAACCAGTACTACCTGCAGTTGAATTCTGTGACTACTGAGGACACAGCCACATATTACTGTGCAAGGGACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAGACATTGTGATGACTCAGTCTCAAAAATTCATGTCCACATCAGTAGGAGACAGGGTCAGCGTCACCTGCAAGGCCAGTCAGAATGTGGGTACTAATGTAGCCTGGTATCAACAGAAACCAGGGCAATCTCCTAAAGCACTGATTTACTCGGCATCCTACAGGTACAGTGGAGTCCCTGATCGCTTCACAGGCAGTGGATCTGGGACAGATTTCACTCTCACCATCAGCAATGTGCAGTCTGAAGACTTGGCAGAGTATTTCTGTCAGCAATATAACAGCTATCCTCTCACGTTCGGCTCGGGGACTAAGCTAGAAATAAAA"
-birth_response = SigmoidResponse(1.0, -1.1, 1.3, 0.5)
+birth_response = SigmoidResponse(1.0, -1.1, 1.3, 0.7)
 death_response = ConstantResponse(0.5)
 mutation_response = SequenceContextMutationResponse(
     replay.mutability(), mutation_intensity=2.7
@@ -57,7 +57,6 @@ def generate_tree(_tries=1):
         )
 
         root.sample_survivors(p=survivor_sampling_prob)
-        root.prune()
 
         survivors = filter(
             lambda node: node.event == "sampling",
@@ -85,7 +84,17 @@ def export_tree(tree):
     }
 
 
+# Export full, unpruned trees to understand population size over time
 trees = [generate_tree() for _ in range(num_trees)]
+json_trees = [export_tree(tree) for tree in trees]
+
+with open("trees-unpruned.json", "w") as f:
+    json.dump(json_trees, f)
+
+# Export pruned trees to use for inference
+for tree in trees:
+    tree.prune()
+
 json_trees = [export_tree(tree) for tree in trees]
 
 with open("trees.json", "w") as f:
