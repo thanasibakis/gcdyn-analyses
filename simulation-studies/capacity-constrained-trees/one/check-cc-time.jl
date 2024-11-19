@@ -5,7 +5,11 @@ function main()
 	population_curves = map(compute_population_curve, trees)
 
 	times = map(compute_carrying_capacity_time, population_curves)
-	histogram(times)
+	histogram(times; label=nothing)
+	title!("Times to reach carrying capacity")
+	xlabel!("Time")
+	mkpath("out/visualizations")
+	savefig("out/visualizations/carrying-capacity-time.png")
 end
 
 function compute_carrying_capacity_time(population_curve; capacity=1000)
