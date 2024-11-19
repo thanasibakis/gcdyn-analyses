@@ -11,11 +11,11 @@ EVENT_MAPPING = Dict(
 )
 
 function main()
-	trees = map(TreeNode, JSON.parsefile("trees.json"))
-	save_object("trees.jld2", trees)
+	trees = map(TreeNode, JSON.parsefile("out/trees/trees.json"))
+	save_object("out/trees/trees.jld2", trees)
 
-	trees = map(TreeNode, JSON.parsefile("trees-unpruned.json"))
-	save_object("trees-unpruned.jld2", trees)
+	trees = map(TreeNode, JSON.parsefile("out/trees/trees-unpruned.json"))
+	save_object("out/trees/trees-unpruned.jld2", trees)
 end
 
 function gcdyn.TreeNode(json_tree::Dict)

@@ -1,7 +1,7 @@
 using gcdyn, JLD2, StatsPlots
 
 function main()
-	trees = load_object("trees-unpruned.jld2")
+	trees = load_object("out/trees/trees-unpruned.jld2")
 	population_curves = map(compute_population_curve, trees)
 
 	times = map(compute_carrying_capacity_time, population_curves)

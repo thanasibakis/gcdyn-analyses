@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import os
 
 from experiments import replay
 from gcdyn.bdms import TreeError, TreeNode
@@ -14,8 +15,8 @@ from gcdyn.poisson import (
 from numpy.random import default_rng
 
 naive_sequence = "GAGGTGCAGCTTCAGGAGTCAGGACCTAGCCTCGTGAAACCTTCTCAGACTCTGTCCCTCACCTGTTCTGTCACTGGCGACTCCATCACCAGTGGTTACTGGAACTGGATCCGGAAATTCCCAGGGAATAAACTTGAGTACATGGGGTACATAAGCTACAGTGGTAGCACTTACTACAATCCATCTCTCAAAAGTCGAATCTCCATCACTCGAGACACATCCAAGAACCAGTACTACCTGCAGTTGAATTCTGTGACTACTGAGGACACAGCCACATATTACTGTGCAAGGGACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAGACATTGTGATGACTCAGTCTCAAAAATTCATGTCCACATCAGTAGGAGACAGGGTCAGCGTCACCTGCAAGGCCAGTCAGAATGTGGGTACTAATGTAGCCTGGTATCAACAGAAACCAGGGCAATCTCCTAAAGCACTGATTTACTCGGCATCCTACAGGTACAGTGGAGTCCCTGATCGCTTCACAGGCAGTGGATCTGGGACAGATTTCACTCTCACCATCAGCAATGTGCAGTCTGAAGACTTGGCAGAGTATTTCTGTCAGCAATATAACAGCTATCCTCTCACGTTCGGCTCGGGGACTAAGCTAGAAATAAAA"
-birth_response = SigmoidResponse(1.0, -1.1, 1.5, 0.6)
-death_response = ConstantResponse(0.5)
+birth_response = SigmoidResponse(1.5, -0.1, 2.5, 0.6)
+death_response = ConstantResponse(1.0)
 mutation_response = SequenceContextMutationResponse(
     replay.mutability(), mutation_intensity=1.0
 )
@@ -88,7 +89,9 @@ def export_tree(tree):
 trees = [generate_tree() for _ in range(num_trees)]
 json_trees = [export_tree(tree) for tree in trees]
 
-with open("trees-unpruned.json", "w") as f:
+os.makedirs("out/trees/", exist_ok=True)
+
+with open("out/trees/trees-unpruned.json", "w") as f:
     json.dump(json_trees, f)
 
 # Export pruned trees to use for inference
@@ -97,5 +100,5 @@ for tree in trees:
 
 json_trees = [export_tree(tree) for tree in trees]
 
-with open("trees.json", "w") as f:
+with open("out/trees/trees.json", "w") as f:
     json.dump(json_trees, f)
