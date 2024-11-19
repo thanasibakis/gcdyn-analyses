@@ -33,7 +33,7 @@ mutator = SequencePhenotypeMutator(
     gp_map,
 )
 
-num_trees = 10  # 5 * 52
+num_trees = 5 * 52
 rng = default_rng(1)
 
 
