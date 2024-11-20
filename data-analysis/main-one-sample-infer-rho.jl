@@ -20,7 +20,7 @@ using CSV, gcdyn, DataFrames, Distributions, JLD2, LinearAlgebra, Optim, Random,
 	if DynamicPPL.leafcontext(__context__) !== Turing.PriorContext()
 		for i in eachindex(trees)
 			tree = trees[i]
-			ρ = gcdyn.expit(logit_ρ[trees] * 1.4 - 1.8)
+			ρ = gcdyn.expit(logit_ρ[i] * 1.4 - 1.8)
 			present_time = maximum(node.time for node in LeafTraversal(tree))
 
 			sampled_model = SigmoidalBranchingProcess(φ[2], φ[3], φ[1], φ[4], μ, δ, Γ, ρ, 0, type_space)
