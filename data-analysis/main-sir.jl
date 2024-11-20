@@ -1,5 +1,5 @@
 println("Loading packages...")
-using CSV, gcdyn, DataFrames, Distributions, JLD2, LinearAlgebra, Optim, Random, StatsBase, Turing
+using CSV, gcdyn, DataFrames, Dates, Distributions, JLD2, LinearAlgebra, Optim, Random, StatsBase, Turing
 
 @model function SigmoidalModel(trees, Γ, type_space)
 	# Keep priors on the same scale for NUTS
@@ -122,7 +122,7 @@ function main()
 
 	for mcmc_iteration in 1:num_mcmc_iterations
 		if mcmc_iteration % 10 == 0
-			println("INFO: Starting SIR iteration $mcmc_iteration")
+			println("[$(Dates.format(now(), "mm/dd HH:MM"))] Starting SIR iteration $mcmc_iteration")
 		end
 
 		treeset = map(germinal_center_dirs) do germinal_center_dir
