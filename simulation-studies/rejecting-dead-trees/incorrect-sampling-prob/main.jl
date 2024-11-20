@@ -67,7 +67,7 @@ function main()
 
         dfs[i].treeset .= i
 
-        println("Finished sampling from posterior $i")
+        println("[$(Dates.format(now(), "mm/dd HH:MM"))] Finished sampling from posterior $i")
     end
 
     println("Exporting samples...")
