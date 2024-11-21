@@ -55,6 +55,30 @@ function main()
 	out_path = "out/inference/one-sample-no-stop-codons/"
 	mkpath(out_path)
 
+	# Some germinal centers have stop codons in the sequences of the sampled cells. We need to exclude these GCs.
+	# Other GCs have stop codons somewhere in the internal nodes of some trees; we'll need to exclude just those trees.
+	# All this info is stored in `out/trees-with-stop-codon.txt`
+	BAD_GCs = ["btt-PR-2-01-1-LI-1D-GC", "btt-PR-2-01-1-RP-1A-GC", "btt-PR-2-01-10-LP-10B-GC", "btt-PR-2-01-2-RP-2A-GC", "btt-PR-2-01-3-LP-3B-GC", "btt-PR-2-01-3-RP-3A-GC", "btt-PR-2-01-4-LP-4B-GC", "btt-PR-2-01-5-LI-5D-GC", "btt-PR-2-01-6-RP-6A-GC", "btt-PR-2-02-10-RI-10C-GC", "btt-PR-2-02-10-RP-10A-GC", "btt-PR-2-02-12-RP-12A-GC", "btt-PR-2-02-7-RI-7C-GC", "btt-PR-2-02-7-RP-7A-GC", "btt-PR-2-03-1-LI-4A-GC", "btt-PR-2-03-1-LP-2A-GC", "btt-PR-2-03-2-RI-7B-GC", "btt-PR-2-03-6-LP-21B-GC", "btt-PR-2-03-7-LP-25A-GC", "btt-PR-2-03-8-RP-28A-GC", "btt-PR-2-04-1-LP-2B-GC", "btt-PR-2-04-1-RP-1A-GC", "btt-PR-2-04-2-RP-5A-GC", "btt-PR-2-04-5-RP-17A-GC", "btt-PR-2-04-6-LP-21A-GC", "btt-PR-2-04-6-RI-22A-GC", "btt-PR-2-04-6-RI-22B-GC", "btt-PR-2-04-7-LP-25B-GC"]
+	BAD_TREES = open("out/trees-with-stop-codon.txt") do f
+		d = Dict()
+
+		for line in readlines(f)
+			_, _, gc, file = split(line, '/')
+
+			if gc in BAD_GCs
+				continue
+			end
+
+			if haskey(d, gc)
+				push!(d[gc], file)
+			else
+				d[gc] = [file]
+			end
+		end
+
+		d
+	end
+
 	# Generated in the `type-spaces` directory at the repository root
 	type_space = [-2.4270176906430416, -1.4399117849363843, -0.6588015552361666, -0.13202968692343608, 0.08165101396850624, 0.7981793588605735, 1.3526378568771724, 2.1758707012574643]
 	discretization_table = Dict([0.5, 1.0] => 0.7981793588605735, [-1.0, -0.5] => -0.6588015552361666, [2.0, Inf] => 2.1758707012574643, [0.0, 0.5] => 0.08165101396850624, [-2.0, -1.0] => -1.4399117849363843, [-Inf, -2.0] => -2.4270176906430416, [-0.5, 0.0] => -0.13202968692343608, [1.0, 2.0] => 1.3526378568771724)
@@ -66,11 +90,16 @@ function main()
 
 	filter!(germinal_center_dirs) do germinal_center_dir
 		# Filter out germinal centers whose sampled sequences have a stop codon
-		!(basename(germinal_center_dir) in ["btt-PR-2-01-1-LI-1D-GC", "btt-PR-2-01-1-RP-1A-GC", "btt-PR-2-01-10-LP-10B-GC", "btt-PR-2-01-2-RP-2A-GC", "btt-PR-2-01-3-LP-3B-GC", "btt-PR-2-01-3-RP-3A-GC", "btt-PR-2-01-4-LP-4B-GC", "btt-PR-2-01-5-LI-5D-GC", "btt-PR-2-01-6-RP-6A-GC", "btt-PR-2-02-10-RI-10C-GC", "btt-PR-2-02-10-RP-10A-GC", "btt-PR-2-02-12-RP-12A-GC", "btt-PR-2-02-7-RI-7C-GC", "btt-PR-2-02-7-RP-7A-GC", "btt-PR-2-03-1-LI-4A-GC", "btt-PR-2-03-1-LP-2A-GC", "btt-PR-2-03-2-RI-7B-GC", "btt-PR-2-03-6-LP-21B-GC", "btt-PR-2-03-7-LP-25A-GC", "btt-PR-2-03-8-RP-28A-GC", "btt-PR-2-04-1-LP-2B-GC", "btt-PR-2-04-1-RP-1A-GC", "btt-PR-2-04-2-RP-5A-GC", "btt-PR-2-04-5-RP-17A-GC", "btt-PR-2-04-6-LP-21A-GC", "btt-PR-2-04-6-RI-22A-GC", "btt-PR-2-04-6-RI-22B-GC", "btt-PR-2-04-7-LP-25B-GC"])
+		!(basename(germinal_center_dir) in BAD_GCs)
 	end
 
 	treeset = map(germinal_center_dirs) do germinal_center_dir
-		load_tree(sample(readdir(germinal_center_dir; join=true)), discretization_table)
+		available_trees = readdir(germinal_center_dir; join=true)
+		filter!(available_trees) do tree
+			basename(tree) ∉ BAD_TREES[basename(germinal_center_dir)]
+		end
+
+		load_tree(sample(available_trees), discretization_table)
 	end
 
 	println("Computing initial MCMC state...")
