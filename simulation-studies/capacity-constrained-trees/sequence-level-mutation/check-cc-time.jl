@@ -8,8 +8,7 @@ function main()
 	histogram(times; label=nothing)
 	title!("Times to reach carrying capacity")
 	xlabel!("Time")
-	mkpath("out/visualizations")
-	savefig("out/visualizations/carrying-capacity-time.png")
+	savefig("out/carrying-capacity-time.png")
 end
 
 function compute_carrying_capacity_time(population_curve; capacity=1000)
