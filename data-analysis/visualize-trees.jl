@@ -17,6 +17,11 @@ function main()
 		for i in (5:5:45) * 1000000
 			tree::TreeNode{Float64} = load_object(joinpath(germinal_center_dir, "tree-STATE_$i.jld2"))
 
+			# Correct 15-day trees to have leaves at 15 days instead of the incorrect 20
+			for node in PostOrderTraversal(tree)
+				node.time = 15/20 * node.time
+			end
+
 			# Don't prune self loops when binning here. We want to visualize when the nucleotide-level mutations occurred too
 			map_types!(tree; prune_self_loops=false) do affinity
 				for (bin, value) in discretization_table
@@ -37,7 +42,7 @@ function main()
 			p = plot(
 				tree;
 				colorscheme=:diverging_bkr_55_10_c35_n256,
-				midpoint=0,
+				midpoint=0.08165101396850624,
 				reverse_colorscheme=true,
 				title="$gc_name STATE_$i",
 				dpi=500,
