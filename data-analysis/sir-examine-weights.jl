@@ -78,6 +78,7 @@ function main()
 	germinal_center_dirs = readdir("data/jld2-with-affinities/"; join=true)
 
 	# Load the tree densities from BEAST
+	println("Loading beast densities...")
 	beast_logdensities = map(germinal_center_dirs) do germinal_center_dir
 		beast_logfile = filter(
 			endswith(".log"),	
@@ -92,7 +93,11 @@ function main()
 	samples = CSV.read("out/inference/sir/samples-posterior.csv", DataFrame)
 
 	all_weights = map(eachrow(samples)) do row
+		println("Computing for new sample...")
+
 		map(germinal_center_dirs) do germinal_center_dir
+			println("Computing for new germinal_center...")
+			
 			weights = get_weights(germinal_center_dir, discretization_table, row, beast_logdensities, Γ, type_space)
 			germinal_center_dir => weights
 		end |> Dict
