@@ -49,8 +49,8 @@ function load_tree(path, discretization_table)
 	tree
 end
 
-function resample_tree(germinal_center_dir, discretization_table, current_parameters, beast_logdensities, Γ, type_space)
-	treefiles = readdir(germinal_center_dir; join=true)[2:end] # Skip the initial tree
+function resample_tree(germinal_center_dir, tree_indices, discretization_table, current_parameters, beast_logdensities, Γ, type_space)
+	treefiles = readdir(germinal_center_dir; join=true)[tree_indices]
 	weights = Vector{Float64}(undef, length(treefiles))
 
 	Threads.@threads for i in eachindex(treefiles)
@@ -87,6 +87,8 @@ function main()
 	# Read in the trees used to compute the MAP
 	println("Reading trees...")
 	germinal_center_dirs = readdir("data/jld2-with-affinities/"; join=true)
+	num_trees_after_thinning = 50
+	tree_indices = sample(2:5001, num_trees_after_thinning; replace=false)
 
 	starter_treeset = map(germinal_center_dirs) do germinal_center_dir
 		load_tree(joinpath(germinal_center_dir, "tree-STATE_10000000.jld2"), discretization_table)
@@ -114,19 +116,17 @@ function main()
 	end |> Dict
 
 	# Main SIR loop
-	num_mcmc_iterations = 1000
+	num_mcmc_iterations = 2 #1000
 	chain = Matrix{Float64}(undef, num_mcmc_iterations+1, 6)
 	chain[1, :] = max_a_posteriori.values[7:12]
 
 	selected_trees = Dict{String, Int64}()
 
 	for mcmc_iteration in 1:num_mcmc_iterations
-		if mcmc_iteration % 10 == 0
-			println("[$(Dates.format(now(), "mm/dd HH:MM"))] Starting SIR iteration $mcmc_iteration")
-		end
+		println("[$(Dates.format(now(), "mm/dd HH:MM"))] Starting SIR iteration $mcmc_iteration")
 
 		treeset = map(germinal_center_dirs) do germinal_center_dir
-			selected_name, tree = resample_tree(germinal_center_dir, discretization_table, chain[mcmc_iteration, :], beast_logdensities, Γ, type_space)
+			selected_name, tree = resample_tree(germinal_center_dir, tree_indices, discretization_table, chain[mcmc_iteration, :], beast_logdensities, Γ, type_space)
 
 			if haskey(selected_trees, selected_name)
 				selected_trees[selected_name] += 1
