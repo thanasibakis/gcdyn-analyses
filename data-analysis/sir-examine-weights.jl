@@ -48,8 +48,8 @@ function load_tree(path, discretization_table)
 	tree
 end
 
-function get_weights(germinal_center_dir, discretization_table, current_parameters, beast_logdensities, Γ, type_space)
-	treefiles = readdir(germinal_center_dir; join=true)[2:end] # Skip the initial tree
+function get_weights(germinal_center_dir, tree_indices, discretization_table, current_parameters, beast_logdensities, Γ, type_space)
+	treefiles = readdir(germinal_center_dir; join=true)[tree_indices]
 	weights = Vector{Float64}(undef, length(treefiles))
 
 	Threads.@threads for i in eachindex(treefiles)
@@ -76,6 +76,8 @@ function main()
 	type_space = [-2.4270176906430416, -1.4399117849363843, -0.6588015552361666, -0.13202968692343608, 0.08165101396850624, 0.7981793588605735, 1.3526378568771724, 2.1758707012574643]
 
 	germinal_center_dirs = readdir("data/jld2-with-affinities/"; join=true)
+	num_trees_after_thinning = 50
+	tree_indices = sample(2:5001, num_trees_after_thinning; replace=false)
 
 	# Load the tree densities from BEAST
 	println("Loading beast densities...")
@@ -97,8 +99,8 @@ function main()
 
 		map(germinal_center_dirs) do germinal_center_dir
 			println("Computing for new germinal_center...")
-			
-			weights = get_weights(germinal_center_dir, discretization_table, row, beast_logdensities, Γ, type_space)
+
+			weights = get_weights(germinal_center_dir, tree_indices, discretization_table, row, beast_logdensities, Γ, type_space)
 			germinal_center_dir => weights
 		end |> Dict
 	end
