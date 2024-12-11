@@ -58,7 +58,7 @@ function main()
 	seed = "SEED" in keys(ENV) ? parse(Int, ENV["SEED"]) : 1
 	Random.seed!(seed)
 
-	out_path = "out/inference/seed-$seed/"
+	out_path = "out/seed-$seed/"
 	mkpath(out_path)
 
 	# Generated in the `type-spaces` directory at the repository root
