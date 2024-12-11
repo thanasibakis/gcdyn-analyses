@@ -46,13 +46,19 @@ function load_tree(path, discretization_table)
 		end
 	end
 
+	# Correct 15-day trees to have leaves at 15 days instead of the incorrect 20
+	for node in PostOrderTraversal(tree)
+		node.time = 15/20 * node.time
+	end
+
 	tree
 end
 
 function main()
-	Random.seed!(1)
+	seed = "SEED" in keys(ENV) ? parse(Int, ENV["SEED"]) : 1
+	Random.seed!(seed)
 
-	out_path = "out/inference/one-sample/"
+	out_path = "out/inference/seed-$seed/"
 	mkpath(out_path)
 
 	# Generated in the `type-spaces` directory at the repository root
@@ -84,7 +90,7 @@ function main()
 		init_params=max_a_posteriori
 	) |> DataFrame
 
-	CSV.write(joinpath(out_path, "samples-posterior.csv"), posterior_samples)
+	CSV.write(joinpath(out_path, "posterior-samples.csv"), posterior_samples)
 
 	println("Done!")
 end
