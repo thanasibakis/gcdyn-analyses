@@ -1,0 +1,45 @@
+\subsection{Leveraging existing tree samples under a different prior} \label{sec:sir}
+
+Let us now take an overview look at the inferential target,
+
+\begin{equation} \label{eq:target}
+p(\allparams, \alltrees | \allsequences) \propto p(\allparams) \prod_i  p(\tree{i} | \allparams) p(\sequences{i} | \tree{i}) .
+\end{equation}
+
+Because of the latent tree variables, implementing an end-to-end Markov chain Monte Carlo-based algorithm from scratch is difficult.
+Thankfully, existing software can sample from a posterior of trees for a set of common tree priors, e.g., coalescent models, which model the changes in population size over time \citep{donnelly1995coalescents, minin2008smooth}.
+We can instead collect tree samples under a misspecified tree prior and use a \textit{sampling importance resampling} procedure to obtain samples from the target posterior (\ref{eq:target}) \citep{gordon1993novel}.
+
+Let $p(\tree{i} | \allparams)$ denote the density of the branching process as described in Section \ref{sec:tree_model}, and let $q(\tree{i} | \betavector)$ denote the density of the misspecified tree model (with parameters $\betavector$).
+Let $\tildetree{i}^{(k)}$ denote the $k^{th}$ tree sampled under the misspecified model for germinal center $i$, and $\betavector^{(k)}$ denote the corresponding parameters in sample $k$.
+Define the sampling weight of tree $\tildetree{i}^{(k)}$ as:
+
+\begin{equation} \label{eq:sir_weight}
+\begin{aligned}
+W_{ik}(\allparams)
+&= \frac{p(\tildetree{i}^{(k)}, \allparams | \sequences{i})}{q(\tildetree{i}^{(k)}, \betavector^{(k)} | \sequences{i})} \\
+&\propto \frac{p(\sequences{i} | \tildetree{i}^{(k)}) p(\tildetree{i}^{(k)} | \allparams) p(\allparams)}{p(\sequences{i} | \tildetree{i}^{(k)}) q(\tildetree{i}^{(k)} | \betavector^{(k)}) p(\betavector^{(k)})} \\
+&= \frac{p(\tildetree{i}^{(k)} | \allparams) p(\allparams)}{q(\tildetree{i}^{(k)} | \betavector^{(k)}) p(\betavector^{(k)})} \\
+&\propto \frac{p(\tildetree{i}^{(k)} | \allparams)}{q(\tildetree{i}^{(k)} | \betavector^{(k)})} .
+\end{aligned}
+\end{equation}
+
+To obtain $N$ samples of $(\allparams, \alltrees)$ according to \ref{eq:target}, given the existing tree samples, we use a Gibbs-style method described in Algorithm \ref{alg:sir}.
+Step \ref{alg:sir_param_step} can be performed using a step of any MCMC algorithm (e.g., Metropolis-Hastings, No-U-Turn Sampling); furthermore, the chosen MCMC algorithm can be run for multiple steps, keeping the final sample as $\allparams^{(n)}$.
+
+\begin{algorithm}
+	\caption{Sampling importance resampling for branching process parameters} \label{alg:sir}
+	\begin{algorithmic}[1]
+	\Require $\allparams^{(0)}, \alltildetrees^{(1)}, \dots, \alltildetrees^{(K)}, \betavector^{(1)}, \dots, \betavector^{(K)}$
+	\Ensure $\forall n = 1 \dots N : \allparams^{(n)}, \alltrees^{(n)} \stackrel{\cdot}{\sim} p(\allparams, \alltrees | \allsequences)$ per Equation (\ref{eq:target})
+	\For{$n = 1 \dots N$ (indexing samples of desired parameters)}
+		\For{$i = 1 \dots I$ (indexing germinal centers)}
+			\For{$k = 1 \dots K$ (indexing existing tree samples)}
+				\State Compute $w_{ik} \leftarrow W_{ik}(\allparams^{(n-1)})$ according to Equation (\ref{eq:sir_weight})
+			\EndFor
+			\State Sample $\tree{i}^{(n)}$ from $\big( \tildetree{i}^{(1)}, \dots, \tildetree{i}^{(K)} \big)$ with sampling weights $\big( w_{i1}, \dots, w_{iK} \big)$
+		\EndFor
+		\State Sample $\allparams^{(n)} \sim p(\allparams | \tree{i}^{(n)}) \propto p(\tree{i}^{(n)} | \allparams) p(\allparams)$ \label{alg:sir_param_step}
+	\EndFor
+	\end{algorithmic}
+\end{algorithm}
