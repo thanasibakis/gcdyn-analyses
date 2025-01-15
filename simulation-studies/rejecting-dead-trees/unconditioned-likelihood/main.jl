@@ -22,7 +22,8 @@ function main()
         )
     end
 
-    CSV.write("posterior-medians.csv", vcat(dfs...))
+    mkpath("out/")
+    CSV.write("out/posterior-medians.csv", vcat(dfs...))
 end
 
 @model function ConditionedModel(trees, present_time)
