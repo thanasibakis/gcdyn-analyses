@@ -2,7 +2,9 @@
 
 A collection of analyses for the paper, *Bayesian inference of antibody evolutionary dynamics using multitype branching processes*.
 
-There is also an accompanying software package which implements the branching process itself, at [thanasibakis/gcdyn.jl](https://github.com/thanasibakis/gcdyn.jl).
+There are also accompanying software packages which implement branching process simulators and likelihoods:
+- [thanasibakis/gcdyn.jl](https://github.com/thanasibakis/gcdyn.jl)
+- [matsengrp/gcdyn](https://matsengrp.github.io/gcdyn/)
 
 ## Getting started
 
