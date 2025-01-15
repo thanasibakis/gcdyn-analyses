@@ -1,6 +1,8 @@
 # Bayesian inference of antibody evolutionary dynamics
 
-Accompanies the paper, *Bayesian inference of antibody evolutionary dynamics using multitype branching processes*.
+A collection of analyses for the paper, *Bayesian inference of antibody evolutionary dynamics using multitype branching processes*.
+
+There is also an accompanying software package which implements the branching process itself, at [thanasibakis/gcdyn.jl](https://github.com/thanasibakis/gcdyn.jl).
 
 ## Getting started
 
