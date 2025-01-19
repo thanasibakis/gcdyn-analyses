@@ -5,11 +5,15 @@ This directory hosts simulation studies that impose a carrying capacity on the t
 ## Descriptions of each study
 
 `no-other-misspecification`
-- Generates trees under a carrying capacity and a mutation process on the discrete type space; performs inference with our branching process
+- Generates trees under a hard carrying capacity and a mutation process on the discrete type space; performs inference with our branching process
 - See Section 3.2.5 of the paper
 
+`no-other-misspecification-soft-capacity`
+- Generates trees under a soft carrying capacity and a mutation process on the discrete type space; performs inference with our branching process
+- See Section 3.2.6 of the paper
+
 `sequence-level-mutation`
-- Generates trees under a carrying capacity and a genetic sequence-level mutation process; performs inference with our branching process
+- Generates trees under a hard carrying capacity and a genetic sequence-level mutation process; performs inference with our branching process
 - See Section 3.2.7 of the paper
 
 ## Instructions for running
