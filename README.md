@@ -4,7 +4,7 @@ A collection of analyses for the paper, *Bayesian inference of antibody evolutio
 
 There are also accompanying software packages which implement branching process simulators and likelihoods:
 - [thanasibakis/gcdyn.jl](https://github.com/thanasibakis/gcdyn.jl)
-- [matsengrp/gcdyn](https://matsengrp.github.io/gcdyn/)
+- [matsengrp/gcdyn](https://github.com/matsengrp/gcdyn)
 
 ## Getting started
 
