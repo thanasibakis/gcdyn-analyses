@@ -8,7 +8,10 @@ There are also accompanying software packages which implement branching process 
 
 ## Getting started
 
-1. Set up a Python environment for the `gcdyn` dependency. (Tested with Python 3.12)
+0. Please ensure you have a working Python and [Julia](https://julialang.org/downloads/) installation.
+(This codebase was tested with Python 3.12 and Julia 1.10.)
+
+1. Set up a Python environment for the `gcdyn` dependency.
 
 ```shell
 python -m venv .venv/
@@ -18,7 +21,7 @@ source .venv/bin/activate
 pip install -e lib/gcdyn
 ```
 
-2. Set up the Julia environment. (Tested with Julia 1.10)
+2. Set up the Julia environment.
 
 ```shell
 julia  --project -e "import Pkg; Pkg.instantiate()"
