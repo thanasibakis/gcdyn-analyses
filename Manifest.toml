@@ -1,6 +1,6 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.3"
+julia_version = "1.10.7"
 manifest_format = "2.0"
 project_hash = "0c818d84f8a4f1e700b811bed9b5264ad45ee160"
 
@@ -2680,9 +2680,11 @@ version = "0.43.0+0"
 
 [[deps.gcdyn]]
 deps = ["AbstractTrees", "CategoricalArrays", "ColorSchemes", "DataFrames", "Distributions", "LinearAlgebra", "Memoize", "OrdinaryDiffEq", "Plots", "Random", "StatsAPI", "StatsBase"]
-path = "lib/gcdyn.jl"
+git-tree-sha1 = "31a5ecc5f68a374c16695cf1354f941a87c93841"
+repo-rev = "main"
+repo-url = "https://github.com/thanasibakis/gcdyn.jl"
 uuid = "a07aac68-cc84-4f07-aa24-bb38e7c3d1ae"
-version = "0.1.0"
+version = "1.0.0"
 
 [[deps.gperf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -2705,7 +2707,7 @@ version = "0.15.1+0"
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
-version = "5.8.0+1"
+version = "5.11.0+0"
 
 [[deps.libevdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
