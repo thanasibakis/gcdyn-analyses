@@ -5,4 +5,3 @@ File dependencies:
 
 Package dependencies:
 - `pip install -e ./gcdyn/`
-- `julia --project -e 'using Pkg; Pkg.develop(path="lib/gcdyn.jl")'`
