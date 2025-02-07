@@ -14,44 +14,43 @@ function main()
 		directory_name = joinpath(out_path, gc_name)
 		mkpath(directory_name)
 
-		for i in (5:5:45) * 1000000
-			tree::TreeNode{Float64} = load_object(joinpath(germinal_center_dir, "tree-STATE_$i.jld2"))
+		tree_path = sample(readdir(germinal_center_dir; join=true))
+		tree::TreeNode{Float64} = load_object(tree_path)
 
-			# Correct 15-day trees to have leaves at 15 days instead of the incorrect 20
-			for node in PostOrderTraversal(tree)
-				node.time = 15/20 * node.time
-			end
-
-			# Don't prune self loops when binning here. We want to visualize when the nucleotide-level mutations occurred too
-			map_types!(tree; prune_self_loops=false) do affinity
-				for (bin, value) in discretization_table
-					if bin[1] <= affinity < bin[2]
-						return value
-					end
-				end
-
-				if all(bin[2] <= affinity for bin in keys(discretization_table))
-					return maximum(values(discretization_table))
-				elseif all(affinity < bin[1] for bin in keys(discretization_table))
-					return minimum(values(discretization_table))
-				else
-					error("Affinity $affinity not in any bin!")
-				end
-			end
-
-			p = plot(
-				tree;
-				colorscheme=:diverging_bkr_55_10_c35_n256,
-				midpoint=0.08165101396850624,
-				reverse_colorscheme=true,
-				title="$gc_name STATE_$i",
-				dpi=500,
-				size=(1000, 700),
-				legendtitle="Affinity bin"
-			)
-
-			png(p, joinpath(directory_name, "tree-STATE_$i.png"))
+		# Correct 15-day trees to have leaves at 15 days instead of the incorrect 20
+		for node in PostOrderTraversal(tree)
+			node.time = 15/20 * node.time
 		end
+
+		# Don't prune self loops when binning here. We want to visualize when the nucleotide-level mutations occurred too
+		map_types!(tree; prune_self_loops=false) do affinity
+			for (bin, value) in discretization_table
+				if bin[1] <= affinity < bin[2]
+					return value
+				end
+			end
+
+			if all(bin[2] <= affinity for bin in keys(discretization_table))
+				return maximum(values(discretization_table))
+			elseif all(affinity < bin[1] for bin in keys(discretization_table))
+				return minimum(values(discretization_table))
+			else
+				error("Affinity $affinity not in any bin!")
+			end
+		end
+
+		p = plot(
+			tree;
+			colorscheme=:diverging_bkr_55_10_c35_n256,
+			midpoint=0.08165101396850624,
+			reverse_colorscheme=true,
+			title="$gc_name $(basename(tree_path))",
+			dpi=500,
+			size=(1000, 700),
+			legendtitle="Affinity bin"
+		)
+
+		png(p, joinpath(directory_name, basename(tree_path) * ".png"))
 	end
 end
 
