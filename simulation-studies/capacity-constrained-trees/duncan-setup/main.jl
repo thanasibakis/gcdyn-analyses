@@ -1,7 +1,7 @@
 println("Loading packages...")
 using CSV, DataFrames, Dates, gcdyn, JLD2, LinearAlgebra, Optim, Random, Turing
 
-@model function Model(trees, Γ, type_space, ρ, σ, present_time)
+@model function Model(trees, Γ, type_space, σ, present_time)
     # Keep priors on the same scale for NUTS
     θ ~ MvNormal(zeros(6), I)
 
@@ -16,9 +16,12 @@ using CSV, DataFrames, Dates, gcdyn, JLD2, LinearAlgebra, Optim, Random, Turing
     δ := exp(θ[6] * 0.5)
 
     if DynamicPPL.leafcontext(__context__) !== Turing.PriorContext()
-        sampled_model = SigmoidalBranchingProcess(φ[2], φ[3], φ[1], φ[4], μ, δ, Γ, ρ, σ, type_space)
+        for tree in trees
+            ρ = length(LeafTraversal(tree)) / 2000
+            sampled_model = SigmoidalBranchingProcess(φ[2], φ[3], φ[1], φ[4], μ, δ, Γ, ρ, σ, type_space)
 
-        Turing.@addlogprob! loglikelihood(sampled_model, trees, present_time)
+            Turing.@addlogprob! loglikelihood(sampled_model, tree, present_time)
+        end
     end
 end
 
@@ -56,7 +59,6 @@ function main()
 	num_trees_per_set = 30
     present_time = 20
 
-    ρ = 0.05
     σ = 0
 
     mkpath("out/")
@@ -69,7 +71,7 @@ function main()
         println("[$(Dates.format(now(), "mm/dd HH:MM"))] Sampling from posterior $i...")
 
         treeset = trees[(i - 1) * num_trees_per_set + 1:i * num_trees_per_set]
-        model = Model(treeset, Γ, type_space, ρ, σ, present_time)
+        model = Model(treeset, Γ, type_space, σ, present_time)
 
         max_a_posteriori = optimize(model, MAP(), NelderMead())
 
