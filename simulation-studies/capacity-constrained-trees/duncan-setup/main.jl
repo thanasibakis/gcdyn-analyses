@@ -52,11 +52,11 @@ function main()
         end
     end
 
-    num_treesets = 4
+    num_treesets = 1 # 4
 	num_trees_per_set = 30
     present_time = 20
 
-    ρ = 0.1 # TODO: leaf counts were specified directly (randomly), so set this per tree by dividing by the carrying capacity
+    ρ = 0.05
     σ = 0
 
     mkpath("out/")
