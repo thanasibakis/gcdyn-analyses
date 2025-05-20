@@ -55,8 +55,8 @@ function main()
         end
     end
 
-    num_treesets = 1 # 4
-	num_trees_per_set = 30
+    num_treesets = 8
+	num_trees_per_set = 15
     present_time = 20
 
     σ = 0
