@@ -73,6 +73,8 @@ function main()
 		load_tree(sample(readdir(germinal_center_dir; join=true)), discretization_table)
 	end
 
+	save_object(joinpath(out_path, "trees.jld2"), treeset)
+
 	println("Computing initial MCMC state...")
 	max_a_posteriori = optimize(SigmoidalModel(treeset, Γ, type_space), MAP(), NelderMead())
 
