@@ -40,9 +40,6 @@ function main()
     ρ = 0.1
     σ = 0
 
-    mkpath("out/")
-    save_object("out/trees.jld2", trees)
-
 	println("Sampling from posteriors...")
     dfs = Vector{DataFrame}(undef, num_treesets)
 

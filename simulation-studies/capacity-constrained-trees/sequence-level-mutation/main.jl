@@ -52,15 +52,14 @@ function main()
         end
     end
 
+    save_object("out/trees/trees-discretized.jld2", trees)
+
     num_treesets = 5
 	num_trees_per_set = 52
     present_time = 15
 
     ρ = 0.1
     σ = 0
-
-    mkpath("out/")
-    save_object("out/trees.jld2", trees)
 
 	println("Sampling from posteriors...")
     dfs = Vector{DataFrame}(undef, num_treesets)
