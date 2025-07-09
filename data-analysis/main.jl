@@ -69,11 +69,25 @@ function main()
 	println("Reading trees...")
 	germinal_center_dirs = readdir("data/jld2-with-affinities/"; join=true)
 
-	treeset = map(germinal_center_dirs) do germinal_center_dir
-		load_tree(sample(readdir(germinal_center_dir; join=true)), discretization_table)
-	end
+	treeset = begin
+		tree_paths = map(germinal_center_dirs) do germinal_center_dir
+			sample(readdir(germinal_center_dir; join=true))
+		end
 
-	save_object(joinpath(out_path, "trees.jld2"), treeset)
+		# Export the unpruned trees for later use
+		treeset_unpruned = map(tree_paths) do path
+			load_object(path)::TreeNode{Float64}
+		end
+		save_object(joinpath(out_path, "trees-unpruned.jld2"), treeset_unpruned)
+
+		treeset = map(tree_paths) do path
+			load_tree(path, discretization_table)
+		end
+
+		save_object(joinpath(out_path, "trees.jld2"), treeset)
+
+		treeset
+	end
 
 	println("Computing initial MCMC state...")
 	max_a_posteriori = optimize(SigmoidalModel(treeset, Γ, type_space), MAP(), NelderMead())
