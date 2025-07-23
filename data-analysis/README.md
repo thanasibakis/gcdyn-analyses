@@ -11,3 +11,6 @@ Instructions for running:
 4. Run `SEED=1 julia --project main.jl` to run MCMC with a random seed of 1
 	- You are welcome to change the seed
 	- The posterior samples will be saved to `out/seed-$SEED/`
+5. (Optional) run `SEED=1 julia --project posterior-predictive-check.jl` to collect affinities from trees drawn from the posterior predictive distribution of the MCMC run.
+	- You are welcome to change the seed
+	- The affinities will be saved to `out/seed-$SEED/`

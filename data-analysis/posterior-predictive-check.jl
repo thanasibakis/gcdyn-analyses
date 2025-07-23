@@ -40,12 +40,6 @@ function main()
 		map(leaf -> leaf.type, LeafTraversal(tree))
 	end
 
-	observed_type_frequencies = let
-		freqs = vcat(observed_leaves...) |> countmap
-		n = sum(values(freqs))
-		DataFrame(type = keys(freqs) |> collect, observed_proportion = values(freqs) ./ n)
-	end
-
 	germinal_center_sizes = map(length, observed_leaves)
 
 	# Draw posterior predictive trees
@@ -66,9 +60,8 @@ function main()
 				(
 					iteration = row[1],
 					tree = tree_i,
-					event = node.event,
-					time = node.time,
-					type = node.type
+					node = node.event == :sampled_survival ? "leaf" : "internal",
+					affinity = node.type
 				)
 			end
 
@@ -79,21 +72,6 @@ function main()
 	end |> (dfs -> vcat(dfs...))
 
 	CSV.write(joinpath(out_path, "posterior-predictive-affinities.csv"), result)
-
-	# Aggregate results
-	filter!(:event => ==(:sampled_survival), result)
-	DataFrames.transform!(
-		groupby(result, [:iteration]),
-		nrow => :num_leaves
-	)
-	counts = combine(
-		groupby(result, [:iteration, :num_leaves, :type]),
-		nrow => :count
-	)
-	counts.proportion = counts.count ./ counts.num_leaves
-	leftjoin!(counts, observed_type_frequencies, on=:type)
-
-	CSV.write(joinpath(out_path, "posterior-predictive-affinities-aggregated.csv"), counts)
 
 	println("Done!")
 end
