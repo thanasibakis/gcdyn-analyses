@@ -1,10 +1,10 @@
 # Bayesian inference of antibody evolutionary dynamics
 
-A collection of analyses for the paper, *Bayesian inference of antibody evolutionary dynamics using multitype branching processes*.
+A collection of analyses for the paper, [*Bayesian inference of antibody evolutionary dynamics using multitype branching processes*](https://arxiv.org/abs/2508.09519).
 
 There are also accompanying software packages which implement branching process simulators and likelihoods:
 - [thanasibakis/gcdyn.jl](https://github.com/thanasibakis/gcdyn.jl)
-- [matsengrp/gcdyn](https://github.com/matsengrp/gcdyn) (to be made public soon)
+- [matsengrp/gcdyn](https://github.com/matsengrp/gcdyn)
 
 ## Getting started
 
@@ -33,12 +33,12 @@ Visit the following directories for specific instructions on how to run each ana
 
 `data-analysis/`
 - Analysis of our real experimental dataset
-- See Section 3.3 of the paper
+- See Section *Analysis of experimental data* in the paper
 
 `simulation-studies/`
 - A collection of simulation studies to test our method under various model misspecifications
-- See Section 3.2 of the paper
+- See Section *Simulation studies* in the paper
 
 `type-spaces/`
 - Code to compute our type space and type change rate matrix
-- See Section 3.1 of the paper
+- See Section *Adapting our methodology to the experimental setup of DeWitt, Vora, Taraki et al. (2025)* in the paper
